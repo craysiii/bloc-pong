@@ -2,6 +2,7 @@ function Paddle (isPlayerOne) {
   GameObject.call(this);
   
   this.isPlayerOne = isPlayerOne;
+  this.direction   = 0;
 }
 
 Paddle.prototype = Object.create(GameObject.prototype);
@@ -11,6 +12,7 @@ Paddle.prototype.init = function () {
   this.setSpeed();
   this.setDimension();
   this.resetPosition();
+  this.direction = 0;
 }
 
 Paddle.prototype.reinit = function () {
@@ -33,18 +35,18 @@ Paddle.prototype.resetPosition = function () {
     Math.floor(centerVertical(this.height)));
 };
 
-Paddle.prototype.move = function (direction) {
-  if (direction == UP && this.position.y - this.speed <= 0) {
+Paddle.prototype.move = function () {
+  if (this.direction == UP && this.position.y - this.speed <= 0) {
     this.position.y = 0;
     return;
   }
 
-  if (direction == DOWN && this.position.y + this.height + this.speed >= canvas.height) {
+  if (this.direction == DOWN && this.position.y + this.height + this.speed >= canvas.height) {
     this.position.y = canvas.height - this.height;
     return;
   }
 
-  this.position.y += this.speed * direction;
+  this.position.y += this.speed * this.direction;
 };
 
 Paddle.prototype.render = function () {

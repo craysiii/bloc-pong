@@ -1,12 +1,10 @@
-var gameObjects = {
-  'ball': 0,
-  'p1'  : 0,
-  'p2'  : 0  
-};
+var gameObjects = {};
 
-var UP   = -1;
-var DOWN = 1;
-
+var UP    = -1;
+var LEFT  = -1;
+var DOWN  = 1;
+var RIGHT = 1;
+ 
 var animate = window.requestAnimationFrame  ||
   window.webkitRequestAnimationFrame      ||
   window.mozRequestAnimationFrame         ||
@@ -15,7 +13,14 @@ var animate = window.requestAnimationFrame  ||
   function (callback) { window.setTimeout(callback, 1000/60) };
 
 var step = function () {
-  canvas.width = canvas.width;
+  canvas.width = canvas.width; // 'repaint' screen
+  
+  gameObjects['ball'].detectCollision();
+  gameObjects['ball'].applyVector();
+  
+  gameObjects['p1'].move();
+  gameObjects['p2'].move();
+  
   for (var obj in gameObjects) {
     gameObjects[obj].render();   
   }
@@ -51,10 +56,21 @@ var init = function () {
   window.addEventListener('keydown', function (event) {
     switch (event.code) {
       case 'KeyA':
-        gameObjects['p1'].move(UP);
+        gameObjects['p1'].direction = UP;
         break;
       case 'KeyZ':
-        gameObjects['p1'].move(DOWN);
+        gameObjects['p1'].direction = DOWN;
+        break;
+    }
+  });
+  
+  window.addEventListener('keyup', function (event) {
+    switch (event.code) {
+      case 'KeyA':
+        gameObjects['p1'].direction = 0;
+        break;
+      case 'KeyZ':
+        gameObjects['p1'].direction = 0;
         break;
     }
   });
