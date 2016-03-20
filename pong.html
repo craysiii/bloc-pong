@@ -1,131 +1,14 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <style>
-      body {
-        margin: 0;
-      }
-      
-      #pong {
-        background-color: black;
-        display: block;
-        margin: 0 auto;
-      }  
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
-  <body onload="init()" onresize="resize()">
+  <body onload="init()" onresize="size()">
     <canvas id="pong"></canvas>
-    <script>
-        var canvas  = document.getElementById('pong');
-        var context = canvas.getContext('2d');
-        
-        var currentAspectRatio= '4:3';
-        var aspectRatios = {
-          '4:3'  : 1920/1440,
-          '16:9' : 1920/1080,
-          '16:10': 2560/1600,
-          '21:9' : 2560/1080,
-        };
-        
-        var browserWidth  = () => document.documentElement.clientWidth;
-        var browserHeight = () => document.documentElement.clientHeight;
-        
-        var setDimensions = function (width, height) {
-          canvas.width  = width;
-          canvas.height = height;
-        };
-        
-        var centerVertical = function (height) {
-          return (canvas.height / 2) - (height / 2);
-        };
-        
-        var centerHorizontal = function (width) {
-          return (canvas.width / 2) - (width / 2);
-        };
-        
-        var setCanvasSize = function () {
-          var width  = browserWidth();
-          var height = browserHeight();
-          if (width / height >= aspectRatios[currentAspectRatio]) 
-            // scale according to height
-            setDimensions(height * aspectRatios[currentAspectRatio], height); 
-          else 
-            // scale according to width
-            setDimensions(width, width * (1 / aspectRatios[currentAspectRatio]));
-        };
-        
-        function Paddle (isPlayerOne) {
-          this.resize = function () {
-            this.height = canvas.height / 8;
-            this.width  = this.height / 8;
-            
-            this.position = {
-              x: Math.floor(isPlayerOne ? this.width : canvas.width - (this.width * 2)),
-              y: Math.floor(centerVertical(this.height))
-            };
-          };
-          
-          this.resize();
-        }
-        
-        Paddle.prototype.render = function () {
-          context.fillStyle = 'white';
-          context.fillRect(this.position.x, this.position.y, 
-            this.width, this.height);
-        };
-        
-        function Ball () {
-          this.resize = function() {
-            this.radius     = Math.floor(canvas.height / 128);
-            this.startAngle = 0;
-            this.endAngle   = 2 * Math.PI;
-            this.position = {
-              x: Math.floor(centerHorizontal(this.radius * 2)),
-              y: Math.floor(centerVertical(this.radius * 2))
-            };
-          };
-          
-          this.resize();
-        }
-        
-        Ball.prototype.render = function () {
-          context.fillStyle = 'white';
-          context.beginPath();
-          context.arc(this.position.x, this.position.y, 
-            this.radius, this.startAngle, this.endAngle);
-          context.fill();
-        };
-        
-        // define game objects
-        var ball = 0;
-        var p1   = 0;
-        var p2   = 0;
-        var renderLoop = 0;
-        
-        var render = function () {
-          ball.render();
-          p1.render();
-          p2.render();
-        };
-        
-        var resize = function () {
-          setCanvasSize();
-          
-          ball.resize();
-          p1.resize();
-          p2.resize();
-        };
-        
-        var init = function () {
-          setCanvasSize();
-          
-          ball = new Ball();
-          p1 = new Paddle(true);
-          p2 = new Paddle(false);
-          
-          renderLoop = setInterval(render, 0);
-        };
-        
-    </script>
+    <script src="canvas.js"></script>
+    <script src="gameobject.js"></script>
+    <script src="paddle.js"></script>
+    <script src="ball.js"></script>
+    <script src="game.js"></script>
   </body>
 </html>
