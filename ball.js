@@ -3,39 +3,32 @@ function Ball () {
   
   this.startAngle = 0;
   this.endAngle   = 2 * Math.PI;
-  this.handle     = 0;
   
-  this.vector = {
-    x: 0,
-    y: 0
-  }
+  this.vector = {};
 }
 
 Ball.prototype = Object.create(GameObject.prototype);
 Ball.prototype.constructor = Ball;
 
 Ball.prototype.init = function () {
-  this.setVector();
   this.setDimension();
-  this.resetPosition();
-  
-};
+  this.setDefault();
+}
 
-Ball.prototype.reinit = function () {
+Ball.prototype.resize = function () {
   this.setDimension();
   this.translatePosition();
   this.translateVector();
 }
 
-Ball.prototype.setVector = function (vector) {
-  if (!vector) {
-    this.vector.x = canvas.width / (Math.random() * canvas.width) * (Math.random() - 0.5 <= 0 ? -1 : 1);
-    this.vector.y = canvas.height / (Math.random() * canvas.height) * (Math.random() - 0.5 <= 0 ? -1 : 1);
-  }
-  else {
-    this.vector.x = vector.x;
-    this.vector.y = vector.y;
-  }
+Ball.prototype.setDefault = function () {
+  this.resetPosition();
+  this.defaultVector();
+};
+
+Ball.prototype.defaultVector = function () {
+  this.vector.x = (game.canvas.width() / 150) * game.currentAspectRatio();
+  this.vector.y = 1 / game.currentAspectRatio();
 };
 
 Ball.prototype.applyVector = function () {
@@ -44,60 +37,73 @@ Ball.prototype.applyVector = function () {
 };
 
 Ball.prototype.translateVector = function () {
-  this.vector.x = (this.vector.x / oldWidth) * canvas.width;
-  this.vector.y = (this.vector.y / oldHeight) * canvas.height;
+  this.vector.x = (this.vector.x / game.canvas.oldWidth) * game.canvas.width();
+  this.vector.y = (this.vector.y / game.canvas.oldHeight) * game.canvas.height();
 };
 
 Ball.prototype.detectCollision = function () {  
+  var reset = function () {
+    game.currentState.objects['p1'].setDefault();
+    game.currentState.objects['p2'].setDefault();
+    game.currentState.objects['ball'].setDefault();
+  };
+  
   // detect x-axis escapes
-  if (this.position.x - this.radius > canvas.width) { // p1 wins
-    this.init();
+  if (this.position.x - this.radius > game.canvas.width()) { // p1 wins
+    console.log('p1 win');
+    reset();
     return;
   }
   
   if (this.position.x + this.radius < 0) { // p2 wins
-    this.init();
+    console.log('p2 win');
+    reset();
     return;
   }
   
   // detect y-axis collisions
-  if (this.position.y - this.radius <= 0 || this.position.y + this.radius >= canvas.height)
+  if (this.position.y - this.radius <= 0 || this.position.y + this.radius >= game.canvas.height())
     this.vector.y *= -1;
-  
+ 
+  // Collision code below needs work
   // detect p1 collision
-  var p1 = gameObjects['p1'];
+  var p1 = game.currentState.objects['p1'];
   if (this.position.x - this.radius <= p1.position.x + p1.width &&
       this.position.x - this.radius >= p1.position.x &&
       this.position.y >= p1.position.y &&
       this.position.y <= p1.position.y + p1.height) {
         this.vector.x *= -1;
+        this.vector.y += ((this.position.y - (p1.position.y + (p1.height / 2))) / 8) *
+          game.currentAspectRatio();
         return;
       }
       
   // detect p2 collision
-  var p2 = gameObjects['p2'];
+  var p2 = game.currentState.objects['p2'];
   if (this.position.x + this.radius <= p2.position.x + p2.width &&
       this.position.x + this.radius >= p2.position.x &&
       this.position.y >= p2.position.y &&
       this.position.y <= p2.position.y + p2.height) {
         this.vector.x *= -1;
+        this.vector.y +=  ((this.position.y - (p2.position.y + (p2.height / 2))) / 8) *
+          game.currentAspectRatio();
         return;
       } 
 };
 
 Ball.prototype.setDimension = function () {
-  this.radius = Math.floor(canvas.height / 128);
+  this.radius = Math.floor(game.canvas.height() / 128);
 };
 
 Ball.prototype.resetPosition = function() {
-  this.setPosition(Math.floor(canvas.width / 2),
-    Math.floor(canvas.height / 2));
+  this.setPosition(Math.floor(game.canvas.width() / 2),
+    Math.floor(game.canvas.height() / 2));
 };
 
 Ball.prototype.render = function () {
-  context.fillStyle = 'white';
-  context.beginPath();
-  context.arc(this.position.x, this.position.y, 
+  game.canvas.context.fillStyle = 'white';
+  game.canvas.context.beginPath();
+  game.canvas.context.arc(this.position.x, this.position.y, 
     this.radius, this.startAngle, this.endAngle);
-  context.fill();
+  game.canvas.context.fill();
 };

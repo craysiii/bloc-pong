@@ -3,12 +3,20 @@
   <head>
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
-  <body onload="init()" onresize="size()">
-    <canvas id="pong"></canvas>
-    <script src="canvas.js"></script>
-    <script src="gameobject.js"></script>
-    <script src="paddle.js"></script>
-    <script src="ball.js"></script>
-    <script src="game.js"></script>
+  <body onresize="game.resize()">
+    <canvas id="pong">                  </canvas>
+    <script src="canvas.js">            </script>
+    <script src="gamestate.js">         </script>
+    <script src="gamestatefactory.js">  </script>
+    <script src="gameobject.js">        </script>
+    <script src="paddle.js">            </script>
+    <script src="ball.js">              </script>
+    <script src="computer.js">          </script>
+    <script src="game.js">              </script>
+    <script>
+      // Dirty global singleton
+      var game = new Game(new Canvas('pong'));
+      game.init();
+    </script>
   </body>
 </html>

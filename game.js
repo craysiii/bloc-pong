@@ -1,79 +1,74 @@
-var gameObjects = {};
+function Game (canvas) {
+  this.canvas       = canvas;
+  this.currentState = null;
+  this.factory      = new GameStateFactory();
+  
+  this.settings = {};
+}
 
-var UP    = -1;
-var LEFT  = -1;
-var DOWN  = 1;
-var RIGHT = 1;
+Game.constants = {
+  'UP'   : -1,        // Directions
+  'LEFT' : -1,
+  'DOWN' : 1,
+  'RIGHT': 1,
+  'NONE' : 0,
+  '4:3'  : 1920/1440, // Aspect Ratios
+  '16:9' : 1920/1080,
+  '16:10': 2560/1600
+};
+
+Game.prototype.defaultSettings = function () {
+  this.settings['aspectRatio']            = '16:9';
+  this.settings['gameState']              = 'pong';
+  
+  this.settings['p1-computer']            = false;
+  this.settings['p2-computer']            = true;
+  this.settings['p1-computer-difficulty'] = 'normal';
+  this.settings['p2-computer-difficulty'] = 'easy';
+};
+
+Game.prototype.currentAspectRatio = function () {
+   return Game.constants[this.settings['aspectRatio']];
+};
  
-var animate = window.requestAnimationFrame  ||
-  window.webkitRequestAnimationFrame      ||
-  window.mozRequestAnimationFrame         ||
-  window.oRequestAnimationFrame           ||
-  window.msRequestAnimationFrame          ||
-  function (callback) { window.setTimeout(callback, 1000/60) };
-
-var step = function () {
-  canvas.width = canvas.width; // 'repaint' screen
+Game.prototype.animate = 
+  window.requestAnimationFrame        ||
+  window.webkitRequestAnimationFrame  ||
+  window.mozRequestAnimationFrame     ||
+  window.oRequestAnimationFrame       ||
+  window.msRequestAnimationFrame      ||
+function (callback) { window.setTimeout(callback, 1000/60) };
   
-  gameObjects['ball'].detectCollision();
-  gameObjects['ball'].applyVector();
-  
-  gameObjects['p1'].move();
-  gameObjects['p2'].move();
-  
-  for (var obj in gameObjects) {
-    gameObjects[obj].render();   
-  }
-  
-  animate(step);
+Game.prototype.init = function () {
+  this.defaultSettings();
+  this.canvas.setSize(game.currentAspectRatio());
+  this.canvas.storeDimensions();
+  this.currentState = this.factory.giveState(this.settings['gameState']);
+  this.animate.call(window, this.step);
 };
 
-var size = function () {
-  setCanvasSize();
-  
-  for (var obj in gameObjects) {
-    gameObjects[obj].reinit();
-  }
-  
-  oldWidth = canvas.width;
-  oldHeight = canvas.height;
+Game.prototype.step = function () {
+  // Can't use 'this' because it would refer to window
+  game.canvas.primitive.width = game.canvas.primitive.width; // Repaint
+  game.currentState.step();
+  game.animate.call(window, game.step);
 };
 
-var init = function () {
-  setCanvasSize();
+Game.prototype.resize = function () {
+  this.canvas.setSize(game.currentAspectRatio());
   
-  oldWidth  = canvas.width;
-  oldHeight = canvas.height;
-  
-  gameObjects['ball'] = new Ball();
-  gameObjects['p1']   = new Paddle(true);
-  gameObjects['p2']   = new Paddle(false);
-  
-  for (var obj in gameObjects) {
-    gameObjects[obj].init();
+  for (var obj in this.currentState.objects) {
+    if ('resize' in this.currentState.objects[obj])
+      this.currentState.objects[obj].resize();
   }
   
-  window.addEventListener('keydown', function (event) {
-    switch (event.code) {
-      case 'KeyA':
-        gameObjects['p1'].direction = UP;
-        break;
-      case 'KeyZ':
-        gameObjects['p1'].direction = DOWN;
-        break;
-    }
-  });
+  // Should probably abstract this out somehow
+  if ('computers' in this.currentState.objects)
+  {
+    if (game.settings['p1-computer']) this.currentState.objects['computers']['p1'].setSpeed();
+    if (game.settings['p2-computer']) this.currentState.objects['computers']['p2'].setSpeed();
+  }
   
-  window.addEventListener('keyup', function (event) {
-    switch (event.code) {
-      case 'KeyA':
-        gameObjects['p1'].direction = 0;
-        break;
-      case 'KeyZ':
-        gameObjects['p1'].direction = 0;
-        break;
-    }
-  });
-  
-  animate(step);
+  // Store dimensions for next resize
+  this.canvas.storeDimensions();
 };
