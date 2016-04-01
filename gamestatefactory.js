@@ -19,6 +19,8 @@ GameStateFactory.prototype.createPongState = function () {
   pong.addObject('ball', new Ball());
   pong.addObject('p1', new Paddle(true));
   pong.addObject('p2', new Paddle(false));
+  pong.addObject('s1', new Score(pong.objects['p1']));
+  pong.addObject('s2', new Score(pong.objects['p2']));
   pong.addObject('computers', {});
 
   pong.objects['ball'].init();

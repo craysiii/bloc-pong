@@ -51,12 +51,14 @@ Ball.prototype.detectCollision = function () {
   // detect x-axis escapes
   if (this.position.x - this.radius > game.canvas.width()) { // p1 wins
     console.log('p1 win');
+    game.currentState.objects['p1'].score += 1;
     reset();
     return;
   }
   
   if (this.position.x + this.radius < 0) { // p2 wins
     console.log('p2 win');
+    game.currentState.objects['p2'].score += 1;
     reset();
     return;
   }

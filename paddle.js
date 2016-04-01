@@ -3,6 +3,7 @@ function Paddle (isPlayerOne) {
   
   this.isPlayerOne = isPlayerOne;
   this.direction   = 0;
+  this.score       = 0;
 }
 
 Paddle.prototype = Object.create(GameObject.prototype);
