@@ -20,6 +20,7 @@ Game.constants = {
 Game.prototype.defaultSettings = function () {
   this.settings['aspectRatio']            = '16:9';
   this.settings['gameState']              = 'pong';
+  this.settings['score-threshold']        = 11;
   
   this.settings['p1-computer']            = false;
   this.settings['p2-computer']            = true;
@@ -71,4 +72,9 @@ Game.prototype.resize = function () {
   
   // Store dimensions for next resize
   this.canvas.storeDimensions();
+};
+
+Game.prototype.switchState = function (state) {
+  this.currentState.destroy();
+  this.currentState = this.factory.giveState(state);
 };

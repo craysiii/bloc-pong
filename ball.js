@@ -42,6 +42,9 @@ Ball.prototype.translateVector = function () {
 };
 
 Ball.prototype.detectCollision = function () {  
+  var p1 = game.currentState.objects['p1'];
+  var p2 = game.currentState.objects['p2'];
+  
   var reset = function () {
     game.currentState.objects['p1'].setDefault();
     game.currentState.objects['p2'].setDefault();
@@ -50,15 +53,21 @@ Ball.prototype.detectCollision = function () {
   
   // detect x-axis escapes
   if (this.position.x - this.radius > game.canvas.width()) { // p1 wins
-    console.log('p1 win');
-    game.currentState.objects['p1'].score += 1;
+    p1.score += 1;
+    if (p1.score >= game.settings['score-threshold']) {
+      game.switchState('p1win');
+      return;
+    }
     reset();
     return;
   }
   
   if (this.position.x + this.radius < 0) { // p2 wins
-    console.log('p2 win');
-    game.currentState.objects['p2'].score += 1;
+    p2.score += 1;
+    if (p2.score >= game.settings['score-threshold']) {
+      game.switchState('p2win');
+      return;
+    }
     reset();
     return;
   }
@@ -69,7 +78,6 @@ Ball.prototype.detectCollision = function () {
  
   // Collision code below needs work
   // detect p1 collision
-  var p1 = game.currentState.objects['p1'];
   if (this.position.x - this.radius <= p1.position.x + p1.width &&
       this.position.x - this.radius >= p1.position.x &&
       this.position.y >= p1.position.y &&
@@ -81,7 +89,6 @@ Ball.prototype.detectCollision = function () {
       }
       
   // detect p2 collision
-  var p2 = game.currentState.objects['p2'];
   if (this.position.x + this.radius <= p2.position.x + p2.width &&
       this.position.x + this.radius >= p2.position.x &&
       this.position.y >= p2.position.y &&

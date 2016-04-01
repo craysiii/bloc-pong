@@ -21,8 +21,10 @@ GameState.prototype.addListener = function (target, type, listener) {
 
 GameState.prototype.destroy = function () {  
   // Don't want lingering listeners
+  console.log(this.listeners);
   for (var listener in this.listeners) {
-    listener.target.removeEventListener(listener.type, listener.listener);
+    var obj = this.listeners[listener];
+    obj.target.removeEventListener(obj.type, obj.listener);
   }
 };
 

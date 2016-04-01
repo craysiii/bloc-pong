@@ -5,7 +5,7 @@ function Score (paddle) {
 }
 
 Score.prototype = Object.create(GameObject.prototype);
-Score.prototype.constructer = Score;
+Score.prototype.constructor = Score;
 
 Score.prototype.render = function () {
   game.canvas.context.fillStyle = 'white';

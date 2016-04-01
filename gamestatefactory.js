@@ -10,6 +10,10 @@ GameStateFactory.prototype.giveState = function (name) {
   switch (name) {      
     case 'pong':
       return this.createPongState();
+    case 'p1win':
+      return this.createWinState('p1');
+    case 'p2win':
+      return this.createWinState('p2');
   }
 }
 
@@ -120,4 +124,28 @@ GameStateFactory.prototype.createPongState = function () {
   };
 
   return pong;
-}
+};
+
+GameStateFactory.prototype.createWinState = function (paddle) {
+  var win = new GameState('win');
+  
+  // Add singular gameover object
+  win.addObject('gameover', new GameOver(paddle));
+  
+  // Add listener
+  win.addListener(window, 'keypress',
+    (event) => {
+      game.switchState('pong');
+    }
+  );
+    
+  // Step
+  win.step = function () {
+    for (var obj in this.objects) {
+      if ('render' in this.objects[obj])
+        this.objects[obj].render();   
+    }
+  }
+  
+  return win;
+};
